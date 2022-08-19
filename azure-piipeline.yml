@@ -1,0 +1,92 @@
+name: $(SourceBranchName)-$(Date:yyyyMMdd)$(Rev:.r)
+trigger:
+- feature/*
+- release/*
+- hotfix/*
+- develop/*
+- master
+
+variables:
+  MAVEN_CACHE_FOLDER: '/home/vsts/.m2'  
+stages: 
+- stage: build
+  displayName: Build
+  jobs:
+  - job: maven_build
+    displayName: Maven Build
+    pool:
+      vmImage: 'ubuntu-18.04'
+    steps:
+    - task: CmdLine@2
+      inputs:
+        script: |
+          tree $(MAVEN_CACHE_FOLDER)
+    - task: Cache@2
+      inputs:
+        key: 'maven | "$(Agent.OS)" | **/pom.xml'
+        path: $(MAVEN_CACHE_FOLDER)
+        restoreKeys: |
+          maven | "$(Agent.OS)"
+          maven
+    - task: CmdLine@2
+      inputs:
+        script: |
+          tree $(MAVEN_CACHE_FOLDER)
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        options: '--settings $(build.sourcesdirectory)/.mvn/local-settings.xml'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)'
+        Contents: '**/*.jar'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+- stage: "Build_Docker_Image"
+  jobs:
+    - job: "Build_Docker_Image"
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+      - task: Docker@2
+        displayName: 'Login WSO2 Private Registry'
+        inputs:
+          containerRegistry: 'WSO2PrivateRegistry'
+          command: 'login'
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'AzureContainerRegistry'
+          command: 'login'
+      - task: Docker@2
+        displayName: 'Docker Build'
+        inputs:
+          containerRegistry: 'AzureContainerRegistry'
+          repository: 'plataformas/cid/wso2is-poc'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile'
+          tags: |
+            $(Build.BuildId)
+            latest
+- stage: "Deploy_Docker_Image"
+  jobs:
+    - job: "Build_Docker_Image"
+      pool:
+        vmImage: ubuntu-latest
+      steps: 
+      - task: KubernetesManifest@0
+        inputs:
+          action: 'deploy'
+          kubernetesServiceConnection: 'Desarrollo-k8s-desarrollo-ti-wso2'
+          namespace: 'wso2'
+          manifests: 'deployment.yml'
