@@ -69,3 +69,4 @@ Este pipeline deberia tener todos los stages recomendados. No es necesario crear
 3. Nombra 2 branching strategies
    **Gitflow, Github flow**
 4. Que es Continuous Integration, Continuous Delivery y Continuous Deployment
+   **CI: etapa de contruccion y pruebas del artefacto; CDelivery: requiere una aprobación para el despliegue; CDeployment: Despliegue y pruebas automaticas (Mayor madures)**
