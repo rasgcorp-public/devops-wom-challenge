@@ -64,6 +64,7 @@ Este pipeline deberia tener todos los stages recomendados. No es necesario crear
 ### CI/CD
 
 1. Dibuja un diagrama con vision de pipeline ideal
+   ![Alt text](idealpipeline.png "Ideal Pipeline")
 2. Nombra 3 antipatrones DevOps
    **Devops es un rol, Mantener arquitecturas monoliticas**
 3. Nombra 2 branching strategies
