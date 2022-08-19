@@ -1,0 +1,14 @@
+environments:
+  dev:
+    values:
+    - dev.yaml
+  prod:
+    values:
+    - prod.yaml
+
+---
+releases:
+
+  - name: nginx
+    chart: ./nginx-challenge
+    installed: true 
