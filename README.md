@@ -65,6 +65,7 @@ Este pipeline deberia tener todos los stages recomendados. No es necesario crear
 
 1. Dibuja un diagrama con vision de pipeline ideal
 2. Nombra 3 antipatrones DevOps
+   **Devops es un rol, Mantener arquitecturas monoliticas**
 3. Nombra 2 branching strategies
    **Gitflow, Github flow**
 4. Que es Continuous Integration, Continuous Delivery y Continuous Deployment
